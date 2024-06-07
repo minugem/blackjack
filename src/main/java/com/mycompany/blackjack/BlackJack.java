@@ -8,7 +8,7 @@ package com.mycompany.blackjack;
  *
  * @author jason
  */
-//git test
+//git testing
 public class BlackJack {
 
     private UserManager userManager;

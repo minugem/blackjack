@@ -109,9 +109,9 @@ public class UserInput {
     }
     
     //String and input to delay screen display
-    public void delay() {
-        System.out.print("Enter to continue:");
-        String delay = scanner.nextLine();
-    }
+//    public void delay() {
+//        System.out.print("Enter to continue:");
+//        String delay = scanner.nextLine();
+//    }
     
 }

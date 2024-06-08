@@ -40,7 +40,7 @@ public class LoginGame extends GameBase {
             resetHands();
             displayInitialHands();
 
-            playerTurn();
+//            playerTurn();
             
 
             if (player.getHand().calculateTotal() <= 21) {

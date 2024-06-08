@@ -8,8 +8,7 @@ package com.mycompany.blackjack;
  *
  * @author jason
  */
-//git test
-//GITHUB TEST
+
 public class BlackJack {
 
     private UserManager userManager;
@@ -55,7 +54,7 @@ public class BlackJack {
                     break;
                 case "4":
                     userManager.displayScoreboard();
-                    this.userInput.delay();
+//                    this.userInput.delay();
                     break;
                 case "5":
                     System.out.println("Exiting game. Thank you for playing!");
@@ -144,7 +143,7 @@ public class BlackJack {
         System.out.println("• You win by having a higher score than the dealer without busting, or by the dealer busting.");
         System.out.println("• Good luck, and have fun!");
         System.out.println("================================");
-        this.userInput.delay();
+//        this.userInput.delay();
     }
 
     //Run game

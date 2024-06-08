@@ -38,7 +38,7 @@ public class QuickGame extends GameBase {
             }
 
             determineOutcome();
-            this.userInput.delay();
+//            this.userInput.delay();
     }
 
 

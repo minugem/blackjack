@@ -65,7 +65,7 @@ public abstract class GameBase {
         while (dealer.getHand().calculateTotal() < 17) {
             System.out.println("\nDealer's hand: " + dealer.getHand() + "\nDealer total: " + dealer.getHand().calculateTotal());
             dealer.draw(deck);
-            userInput.delay(); 
+//            userInput.delay(); 
         }
         System.out.println("Dealer's final hand: " + dealer.getHand() + "\nDealer total: " + dealer.getHand().calculateTotal());
     }

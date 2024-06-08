@@ -12,7 +12,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 public class UserManager {
 
     private FileIO fileIO;
@@ -29,14 +32,14 @@ public class UserManager {
             for (String userDataLine : fileContent) {
                 String[] userData = userDataLine.split(",");
                 if (userData[0].equals(username)) {
-                    return true; 
+                    return true;
                 }
             }
         } catch (Exception e) {
             System.out.println("An error occurred while checking user existence: " + e.getMessage());
             return false;
         }
-        return false; 
+        return false;
     }
 
     //WRITE new player detals to file
@@ -109,8 +112,7 @@ public class UserManager {
         return 0;
     }
 
-    // Get ranking by reading all player username and balance
-    public void displayScoreboard() {
+    public void displayScoreboard(JLabel scoreBoardLabel) {
         try {
             List<String> fileContent = fileIO.readFileLines();
             List<String[]> parsedContent = new ArrayList<>();
@@ -122,14 +124,19 @@ public class UserManager {
 
             parsedContent.sort((a, b) -> Double.compare(Double.parseDouble(b[2]), Double.parseDouble(a[2])));
 
-            System.out.println("\nScoreboard:");
-            System.out.printf("%-20s %-10s\n", "Username", "Balance");
+            StringBuilder scoreboardText = new StringBuilder("<html><body><h2>Scoreboard</h2>");
+            scoreboardText.append("<table border='1'>");
+            scoreboardText.append("<tr><th>Username</th><th>Balance</th></tr>");
+
             for (int i = 0; i < parsedContent.size() && i < 10; i++) {
                 String[] userData = parsedContent.get(i);
-                System.out.printf("%-20s %-10s\n", userData[0], userData[2]);
+                scoreboardText.append("<tr><td>").append(userData[0]).append("</td><td>").append(userData[2]).append("</td></tr>");
             }
+
+            scoreboardText.append("</table></body></html>");
+            scoreBoardLabel.setText(scoreboardText.toString());
         } catch (Exception e) {
-            System.out.println("An error occurred while generating the scoreboard: " + e.getMessage());
+            scoreBoardLabel.setText("An error occurred while generating the scoreboard: " + e.getMessage());
         }
     }
 

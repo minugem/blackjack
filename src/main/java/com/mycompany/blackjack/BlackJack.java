@@ -53,7 +53,7 @@ public class BlackJack {
                     showTutorial();
                     break;
                 case "4":
-                    userManager.displayScoreboard();
+//                    userManager.displayScoreboard();
 //                    this.userInput.delay();
                     break;
                 case "5":

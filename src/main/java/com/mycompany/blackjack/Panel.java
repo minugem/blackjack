@@ -12,13 +12,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 public class Panel {
 
-    private UserManager userManager;
-
+    private static UserManager userManager;
+    private static LoginGame loginGame;
     private static JFrame frame;
     private static JPanel panel;
     private static JLabel dealerCardsLabel;
@@ -28,7 +26,11 @@ public class Panel {
     private static JLabel outcomeLabel;
     private static QuickGame quickGame;
 
+//    public Panel() {
+//        this.userManager = new UserManager("users.txt");
+//    }
     public static void main(String[] args) {
+        userManager = new UserManager("users.txt");
         // Frame
         frame = new JFrame("Blackjack Application");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -255,14 +257,9 @@ public class Panel {
         gbc.anchor = GridBagConstraints.CENTER;
 
         // Components
-        JLabel label = new JLabel("Scoreboard");
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         JLabel scoreBoard = new JLabel();
         scoreBoard.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Assuming userManager is an instance of UserManager
-//        userManager.displayScoreboard(scoreBoard);
+        userManager.displayScoreboard(scoreBoard);
 
         JButton backButton = new JButton("Back");
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -281,7 +278,6 @@ public class Panel {
         setButtonSize(backButton, buttonSize);
 
         // Adding Components to Panel
-        scoreBoardPanel.add(label, gbc);
         scoreBoardPanel.add(scoreBoard, gbc);
         scoreBoardPanel.add(backButton, gbc);
 
@@ -376,9 +372,6 @@ public class Panel {
         gbc.anchor = GridBagConstraints.CENTER;
 
         // Components
-        JLabel label = new JLabel("Log In");
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         JLabel usernameLabel = new JLabel("Username:");
         usernameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -390,6 +383,13 @@ public class Panel {
 
         JPasswordField passwordField = new JPasswordField(20);
         passwordField.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel betLabel = new JLabel("Bet Amount:");
+        betLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JTextField betField = new JTextField(20);
+        betField.setAlignmentX(Component.CENTER_ALIGNMENT);
+        betField.setText(String.valueOf(10));
 
         JButton logInButton = new JButton("Log In");
         logInButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -403,9 +403,18 @@ public class Panel {
                     UserManager userManager = new UserManager("users.txt");
                     if (userManager.loginPlayer(username, password)) {
                         double balance = userManager.getPlayerBalance(username);
-                        frame.getContentPane().removeAll();
-                        frame.add(createLoginGamePanel(username, balance));
-                        refreshFrame();
+                        double betAmount = Double.parseDouble(betField.getText());
+                        if (balance >= betAmount) {
+                            System.out.println(balance);
+                            double newBal = balance - betAmount;
+                            userManager.updatePlayerBalance(username, newBal);
+                            System.out.println(balance);
+                            loginGame = new LoginGame(username, balance);
+                            runLoginGame();
+                            frame.getContentPane().removeAll();
+                            frame.add(createLoginGamePanel(username, balance, betAmount));
+                            refreshFrame();
+                        }
                     } else {
 
                     }
@@ -433,15 +442,35 @@ public class Panel {
         setButtonSize(logInButton, buttonSize);
 
         // Adding Components to Panel
-        logInPanel.add(label, gbc);
         logInPanel.add(usernameLabel, gbc);
         logInPanel.add(usernameField, gbc);
         logInPanel.add(passwordLabel, gbc);
         logInPanel.add(passwordField, gbc);
+        logInPanel.add(betLabel, gbc);
+        logInPanel.add(betField, gbc);
         logInPanel.add(logInButton, gbc);
         logInPanel.add(backButton, gbc);
 
         return logInPanel;
+    }
+
+    private static void runLoginGame() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                loginGame.play();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                JOptionPane.showMessageDialog(frame, "Game over. Returning to main menu.");
+                frame.getContentPane().removeAll();
+                frame.add(createGamePanel());
+                refreshFrame();
+            }
+        };
+        worker.execute();
     }
 
     private static JPanel createQuickGamePanel() {
@@ -526,7 +555,7 @@ public class Panel {
         return quickGamePanel;
     }
 
-    private static JPanel createLoginGamePanel(String username, double balance) {
+    private static JPanel createLoginGamePanel(String username, double balance, double betAmount) {
         // Panel
         JPanel loginGamePanel = new JPanel();
         loginGamePanel.setLayout(new GridBagLayout());
@@ -537,12 +566,6 @@ public class Panel {
         gbc.anchor = GridBagConstraints.CENTER;
 
         // Initialize the game
-        boolean canPlay = true;
-        LoginGame loginGame = new LoginGame(username, balance);
-        if (canPlay == true) {
-            loginGame.play();
-            canPlay = false;
-        }
         loginGame.resetHands();
 
         // Username and Balance Labels
@@ -553,23 +576,22 @@ public class Panel {
         balanceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Dealer's Cards Label
-        JLabel dealerCardsLabel = new JLabel("Dealer's cards: " + loginGame.dealer.getHand().getCards().get(0) + ", ?");
+        dealerCardsLabel = new JLabel("Dealer's cards: " + loginGame.dealer.getHand().getCards().get(0) + ", ?");
         dealerCardsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Player's Cards Label
-        JLabel playerCardsLabel = new JLabel("Your cards: " + loginGame.player.getHand());
+        playerCardsLabel = new JLabel("Your cards: " + loginGame.player.getHand());
         playerCardsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Dealer's Total Label
-        JLabel dealerTotalLabel = new JLabel("Dealer total: " + loginGame.dealer.getHand().calculateTotal());
+        dealerTotalLabel = new JLabel("Dealer total: " + loginGame.dealer.getHand().calculateTotal());
         dealerTotalLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Player's Total Label
-        JLabel playerTotalLabel = new JLabel("Player total: " + loginGame.player.getHand().calculateTotal());
+        playerTotalLabel = new JLabel("Player total: " + loginGame.player.getHand().calculateTotal());
         playerTotalLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         // Outcome Label
-        JLabel outcomeLabel = new JLabel("");
+        outcomeLabel = new JLabel("");
         outcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Hit Button
@@ -579,12 +601,12 @@ public class Panel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 loginGame.player.draw(loginGame.deck);
-                updateLabels();
+                updateLoginGameLabels();
                 if (loginGame.player.getHand().calculateTotal() >= 21) {
                     loginGame.dealerTurn();
-                    determineOutcomeAndDisplay();
+                    determineLoginGameOutcomeAndDisplay(username,betAmount);
                     disableButtons();
-                    addButtonPanel(); // Add play again and go back buttons
+                    addLoginGameButtonPanel(); // Add play again and go back buttons
                 }
                 refreshFrame();
             }
@@ -597,9 +619,9 @@ public class Panel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 loginGame.dealerTurn();
-                determineOutcomeAndDisplay();
+                determineLoginGameOutcomeAndDisplay(username,betAmount);
                 disableButtons();
-                addButtonPanel(); // Add play again and go back buttons
+                addLoginGameButtonPanel();
                 refreshFrame();
             }
         });
@@ -654,6 +676,27 @@ public class Panel {
         frame.add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    private static void addLoginGameButtonPanel() {
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+
+        // Go Back Button
+        JButton goBackButton = new JButton("Go Back");
+        goBackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.getContentPane().removeAll();
+                frame.add(createGamePanel());
+                refreshFrame();
+            }
+        });
+
+        // Adding Buttons to Panel
+        buttonPanel.add(goBackButton);
+
+        frame.add(buttonPanel, BorderLayout.SOUTH);
+    }
+
     private static void setButtonSize(JButton button, Dimension size) {
         button.setPreferredSize(size);
         button.setMinimumSize(size);
@@ -661,10 +704,13 @@ public class Panel {
     }
 
     private static void updateLabels() {
-        dealerCardsLabel.setText("Dealer's cards: " + quickGame.dealer.getHand().getCards().get(0) + ", ?");
-        dealerTotalLabel.setText("Dealer total: " + quickGame.dealer.getHand().calculateTotal());
         playerCardsLabel.setText("Your cards: " + quickGame.player.getHand());
         playerTotalLabel.setText("Player total: " + quickGame.player.getHand().calculateTotal());
+    }
+
+    private static void updateLoginGameLabels() {
+        playerCardsLabel.setText("Your cards: " + loginGame.player.getHand());
+        playerTotalLabel.setText("Player total: " + loginGame.player.getHand().calculateTotal());
     }
 
     private static void disableButtons() {
@@ -682,6 +728,8 @@ public class Panel {
     private static void determineOutcomeAndDisplay() {
         int playerTotal = quickGame.player.getHand().calculateTotal();
         int dealerTotal = quickGame.dealer.getHand().calculateTotal();
+        dealerCardsLabel.setText("Dealer's cards: " + quickGame.dealer.getHand());
+        dealerTotalLabel.setText("Dealer total: " + quickGame.dealer.getHand().calculateTotal());
 
         if (playerTotal > 21 || (dealerTotal <= 21 && dealerTotal > playerTotal)) {
             outcomeLabel.setText("XXX Dealer wins! XXX");
@@ -689,6 +737,25 @@ public class Panel {
             outcomeLabel.setText("$$$ Player wins! $$$");
         } else {
             outcomeLabel.setText("--- It's a tie! ---");
+        }
+    }
+
+    private static void determineLoginGameOutcomeAndDisplay(String username, double betAmount) {
+        int playerTotal = loginGame.player.getHand().calculateTotal();
+        int dealerTotal = loginGame.dealer.getHand().calculateTotal();
+        double balance = userManager.getPlayerBalance(username);
+        dealerCardsLabel.setText("Dealer's cards: " + loginGame.dealer.getHand());
+        dealerTotalLabel.setText("Dealer total: " + loginGame.dealer.getHand().calculateTotal());
+
+        if (playerTotal > 21 || (dealerTotal <= 21 && dealerTotal > playerTotal)) {
+            outcomeLabel.setText("XXX Dealer wins! XXX");
+            userManager.updatePlayerBalance(username, balance);
+        } else if (dealerTotal > 21 || playerTotal > dealerTotal) {
+            outcomeLabel.setText("$$$ Player wins! $$$");
+            userManager.updatePlayerBalance(username, balance+=(betAmount*2));
+        } else {
+            outcomeLabel.setText("--- It's a tie! ---");
+            userManager.updatePlayerBalance(username, balance+=(betAmount));
         }
     }
 

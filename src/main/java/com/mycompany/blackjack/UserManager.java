@@ -110,6 +110,7 @@ public class UserManager {
         return 0;
     }
 
+    //Updates Scoreboard and displays on jframe
     public void displayScoreboard(JLabel scoreBoardLabel) {
         try {
             List<String> fileContent = fileIO.readFileLines();

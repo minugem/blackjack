@@ -26,9 +26,6 @@ public class Panel {
     private static JLabel outcomeLabel;
     private static QuickGame quickGame;
 
-//    public Panel() {
-//        this.userManager = new UserManager("users.txt");
-//    }
     public static void main(String[] args) {
         userManager = new UserManager("users.txt");
         // Frame
@@ -55,11 +52,8 @@ public class Panel {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Remove the current panel
                 frame.getContentPane().removeAll();
-                // Add the new panel
                 frame.add(createGamePanel());
-                // Refresh the frame
                 refreshFrame();
             }
         });
@@ -69,11 +63,8 @@ public class Panel {
         tutorialButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Remove the current panel
                 frame.getContentPane().removeAll();
-                // Add the new panel
                 frame.add(createTutorialPanel());
-                // Refresh the frame
                 refreshFrame();
             }
         });
@@ -83,11 +74,8 @@ public class Panel {
         scoreButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Remove the current panel
                 frame.getContentPane().removeAll();
-                // Add the new panel
                 frame.add(createScoreboardPanel());
-                // Refresh the frame
                 refreshFrame();
             }
         });
@@ -102,8 +90,6 @@ public class Panel {
         panel.add(startButton, gbc);
         panel.add(tutorialButton, gbc);
         panel.add(scoreButton, gbc);
-
-        // Add the panel to the frame at the center
         frame.add(panel, BorderLayout.CENTER);
 
         // Make the frame visible
@@ -131,12 +117,9 @@ public class Panel {
             public void actionPerformed(ActionEvent e) {
                 // Initialize QuickGame
                 quickGame = new QuickGame("Player", 1000.0); // Example player initialization
-
-                // Remove the current panel
+                
                 frame.getContentPane().removeAll();
-                // Add the new panel
                 frame.add(createQuickGamePanel());
-                // Refresh the frame
                 refreshFrame();
             }
         });
@@ -146,11 +129,8 @@ public class Panel {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Remove the current panel
                 frame.getContentPane().removeAll();
-                // Add the new panel
                 frame.add(createLogInPanel());
-                // Refresh the frame
                 refreshFrame();
             }
         });
@@ -160,11 +140,8 @@ public class Panel {
         signupButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Remove the current panel
                 frame.getContentPane().removeAll();
-                // Add the new panel
                 frame.add(createSignUpPanel());
-                // Refresh the frame
                 refreshFrame();
             }
         });
@@ -295,8 +272,7 @@ public class Panel {
         gbc.anchor = GridBagConstraints.CENTER;
 
         // Components
-        JLabel label = new JLabel("Sign Up");
-        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel messageLabel = new JLabel("");
 
         JLabel usernameLabel = new JLabel("Username:");
         usernameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -323,8 +299,9 @@ public class Panel {
                     if (!userManager.userExist(username)) {
                         double startingBalance = 1000.0;
                         userManager.createPlayer(username, password, startingBalance);
+                        messageLabel.setText("Sign Up Successful");
                     } else {
-                        System.out.println("User already exists.");
+                        messageLabel.setText("User Already Exists");
                     }
                 } catch (Exception ex) {
                     System.out.println("Error: " + ex.getMessage());
@@ -350,7 +327,7 @@ public class Panel {
         setButtonSize(signUpButton, buttonSize);
 
         // Adding Components to Panel
-        signUpPanel.add(label, gbc);
+        signUpPanel.add(messageLabel, gbc);
         signUpPanel.add(usernameLabel, gbc);
         signUpPanel.add(usernameField, gbc);
         signUpPanel.add(passwordLabel, gbc);
@@ -371,7 +348,9 @@ public class Panel {
         gbc.insets = new Insets(10, 0, 10, 0);
         gbc.anchor = GridBagConstraints.CENTER;
 
-        // Components
+        // Components        
+        JLabel messageLabel = new JLabel("");
+        
         JLabel usernameLabel = new JLabel("Username:");
         usernameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -415,6 +394,9 @@ public class Panel {
                             frame.add(createLoginGamePanel(username, balance, betAmount));
                             refreshFrame();
                         }
+                        else {
+                            messageLabel.setText("Bet Amount Insufficient");
+                        }
                     } else {
 
                     }
@@ -442,6 +424,7 @@ public class Panel {
         setButtonSize(logInButton, buttonSize);
 
         // Adding Components to Panel
+        logInPanel.add(messageLabel, gbc);
         logInPanel.add(usernameLabel, gbc);
         logInPanel.add(usernameField, gbc);
         logInPanel.add(passwordLabel, gbc);
@@ -483,26 +466,22 @@ public class Panel {
         gbc.insets = new Insets(10, 0, 10, 0);
         gbc.anchor = GridBagConstraints.CENTER;
 
-        // Initialize the game
+        // Start the game
         quickGame.resetHands();
 
-        // Dealer's Cards
+        // Components
         dealerCardsLabel = new JLabel("Dealer's cards: " + quickGame.dealer.getHand().getCards().get(0) + ", ?");
         dealerCardsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Player's Cards
         playerCardsLabel = new JLabel("Your cards: " + quickGame.player.getHand());
         playerCardsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Dealer's Total
         dealerTotalLabel = new JLabel("Dealer total: " + quickGame.dealer.getHand().calculateTotal());
         dealerTotalLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Player's Total
         playerTotalLabel = new JLabel("Player total: " + quickGame.player.getHand().calculateTotal());
         playerTotalLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Outcome Label
         outcomeLabel = new JLabel("");
         outcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -516,9 +495,9 @@ public class Panel {
                 updateLabels();
                 if (quickGame.player.getHand().calculateTotal() >= 21) {
                     quickGame.dealerTurn();
-                    determineOutcomeAndDisplay();
+                    determineQuickGameOutcomeAndDisplay();
                     disableButtons();
-                    addButtonPanel(); // Add play again and go back buttons
+                    addButtonPanel(); 
                 }
                 refreshFrame();
             }
@@ -531,9 +510,9 @@ public class Panel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 quickGame.dealerTurn();
-                determineOutcomeAndDisplay();
+                determineQuickGameOutcomeAndDisplay();
                 disableButtons();
-                addButtonPanel(); // Add play again and go back buttons
+                addButtonPanel(); 
                 refreshFrame();
             }
         });
@@ -565,32 +544,28 @@ public class Panel {
         gbc.insets = new Insets(10, 0, 10, 0);
         gbc.anchor = GridBagConstraints.CENTER;
 
-        // Initialize the game
+        // Start the game
         loginGame.resetHands();
 
-        // Username and Balance Labels
+        // Components
         JLabel usernameLabel = new JLabel("Username: " + username);
         usernameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel balanceLabel = new JLabel("Balance: $" + balance);
         balanceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Dealer's Cards Label
         dealerCardsLabel = new JLabel("Dealer's cards: " + loginGame.dealer.getHand().getCards().get(0) + ", ?");
         dealerCardsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Player's Cards Label
         playerCardsLabel = new JLabel("Your cards: " + loginGame.player.getHand());
         playerCardsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Dealer's Total Label
         dealerTotalLabel = new JLabel("Dealer total: " + loginGame.dealer.getHand().calculateTotal());
         dealerTotalLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Player's Total Label
         playerTotalLabel = new JLabel("Player total: " + loginGame.player.getHand().calculateTotal());
         playerTotalLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        // Outcome Label
+
         outcomeLabel = new JLabel("");
         outcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -606,7 +581,7 @@ public class Panel {
                     loginGame.dealerTurn();
                     determineLoginGameOutcomeAndDisplay(username,betAmount);
                     disableButtons();
-                    addLoginGameButtonPanel(); // Add play again and go back buttons
+                    addLoginGameButtonPanel(); 
                 }
                 refreshFrame();
             }
@@ -725,7 +700,7 @@ public class Panel {
         }
     }
 
-    private static void determineOutcomeAndDisplay() {
+    private static void determineQuickGameOutcomeAndDisplay() {
         int playerTotal = quickGame.player.getHand().calculateTotal();
         int dealerTotal = quickGame.dealer.getHand().calculateTotal();
         dealerCardsLabel.setText("Dealer's cards: " + quickGame.dealer.getHand());
